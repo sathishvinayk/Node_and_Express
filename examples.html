@@ -1,0 +1,81 @@
+app.get('/about',function(req,res){
+  res.render('about');
+});
+app.get('/error',function(req,res){
+  res.status(500);
+  res.render('error');
+});
+app.get('/error',function(req,res){
+  res.status(500).render('error');
+});
+app.get('/greeting',function(req,res){
+  res.render('about',{
+    message: 'about',
+    style: req.query.style,
+    userid: req.cookie.userid,
+    username: req.session.username,
+  });
+});
+
+app.get('/no-layout',function(req,res){
+  res.render('no-layout',{layout: null});
+});
+
+app.get('/custom-layout',function(req,res){
+  res.render('custom-layout',{layout: 'custom'});
+});
+
+app.get('/test',function(req,res){
+  res.type('text/plain');
+  res.send('this is a test');
+});
+
+app.use(function(err,req,res,next){
+  console.error(err.stack);
+  res.status(500).render('error');
+});
+app.use(function(req,res){
+  res.status(404).render('not-found');
+});
+
+//Form handdling
+app.post('/process-contact',function(req,res){
+  console.log('Rc'+req.body.name+ '<'+ req.body.email+'>');
+  try {
+    //sve to DB
+    return res.xhr ? res.render({success:true}) : res.redirect(303, '/thank-y');
+  }catch(ex){
+    return res.xhr ? res.json({error: 'Db error'}): res.redirect(303,'thank-u');
+  }
+});
+
+var tours=[
+  {id: 0, name: 'Hood', price: 23},
+  {id: 0, name: 'Hood', price: 23},
+];
+
+app.get('/api/tours',function(req,res){
+  res.json(tours);
+});
+
+app.put('/api/tour/:id',function(req,res){
+  var p=tours.some(function(p){return p.id==req.params.id});
+  if(p){
+    if(req.query.name) p.name=req.query.name;
+    if(req.query.price)p.price=req.query.price;
+    res.json({success:true});
+  }else {
+    res.json({error: 'NO'})
+  }
+});
+api.del('/api/tour/:id',function(req,res){
+  var i;
+  for(var i = tours.length-1; i>=0; i--)
+    if(tours[i].id==req.query.id) break;
+  if(i>=0){
+    tours.splice(i,1);
+    res.json({success: true});
+  }else {
+    res.json({error: 'no'});
+  }
+});
