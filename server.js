@@ -1,6 +1,7 @@
 var express=require('express'),
     app=express(),
-    fortune=require('./lib/fortune.js');
+    fortune=require('./lib/fortune.js'),
+    formidable=require('formidable');
 
 //Handlebars
 var handlebars=require('express3-handlebars').create({
@@ -101,11 +102,11 @@ app.get('/data/nursery-rhyme',function(req,res){
     noun: 'heck'
   });
 });
-app.get('/newsletter',function(req,res){
-  res.render('newsletter',{ csrf: 'csrd token goes here'});
-});
 app.get('/thank-you',function(req,res){
   res.render('thank-you');
+});
+app.get('/newsletter',function(req,res){
+  res.render('newsletter',{ csrf: 'csrd token goes here'});
 });
 
 app.post('/process',function(req,res){
@@ -114,6 +115,25 @@ app.post('/process',function(req,res){
   }else {
     res.redirect(303, '/thank-you');
   }
+});
+
+app.get('/contest/vacation-photo',function(req,res){
+  var now = new Date();
+  res.render('contest/vacation-photo',{
+    year: now.getFullYear(),month: now.getMonth()
+  });
+});
+
+app.post('/contest/vacation-photo/:year/:month', function(req,res){
+  var form=new formidable.IncomingForm();
+  form.parse(req,function(err,fields,files){
+    if(err)return res.redirect(303,'/error');
+    console.log('Recevd fields');
+    console.log(fields);
+    console.log('Recvd files');
+    console.log(files);
+    res.redirect(303,'/thank-you');
+  });
 });
 
 //404
